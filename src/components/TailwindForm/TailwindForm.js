@@ -1,18 +1,27 @@
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import React from "react";
 import { useState } from "react";
 import app from "../../firebase/firebase.init";
+import { Link } from "react-router-dom";
 
 const auth = getAuth(app);
 
 const TailwindForm = () => {
   let [errorPassword, setErrorPassword] = useState("");
   let [success, setSuccess] = useState(false);
+  let [name, setname] = useState("");
   const btnHandler = (event) => {
     event.preventDefault();
     let email = event.target.email.value;
     let password = event.target.password.value;
-    console.log(email, password);
+    let name = event.target.name.value;
+    setname(name);
+    console.log(email, password, name);
 
     if (!/(?=.{8,})/.test(password)) {
       setErrorPassword("The Password must be eight characters or longer");
@@ -41,6 +50,8 @@ const TailwindForm = () => {
         let user = result.user;
         setSuccess(true);
         event.target.reset();
+        varifyEmail();
+        setProfileName();
         console.log(user);
       })
       .catch((error) => {
@@ -48,25 +59,43 @@ const TailwindForm = () => {
         setSuccess(false);
         setErrorPassword(error.message);
       });
+
+    const varifyEmail = () => {
+      sendEmailVerification(auth.currentUser).then((result) => {
+        alert("Check your email and verify that account");
+      });
+    };
   };
 
-  const passowrdOnBlur = (event) => {
-    let password = event.target.value;
-    console.log(password);
+  const setProfileName = () => {
+    updateProfile(auth.currentUser, {
+      displayName: name,
+    })
+      .then(() => {
+        console.log("Display name updated");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
-  const emailOnChange = (event) => {
-    let email = event.target.value;
-    console.log(email);
-  };
   return (
     <div>
       <h1 className="text-primary">Please Register...!</h1>
       <form action="" onSubmit={btnHandler}>
         <input
+          type="text"
+          name="name"
+          placeholder="Enter your Name"
+          className="input input-bordered input-md w-full max-w-xs"
+          required
+        />
+        <br />
+        <br />
+        <input
           type="email"
           name="email"
-          placeholder="Type here"
+          placeholder="Enter your email"
           className="input input-bordered input-md w-full max-w-xs"
           required
         />
@@ -75,13 +104,15 @@ const TailwindForm = () => {
         <input
           type="password"
           name="password"
-          placeholder="Type here"
+          placeholder="Enter your password"
           className="input input-bordered input-md w-full max-w-xs"
         />{" "}
         <p className="text-danger">{errorPassword}</p>
         {success && <p className="text-success">Register Successfully</p>}
         <br />
-        <br />
+        <p>
+          Have you an account? <Link to="/login">Login</Link>
+        </p>
         <button className="btn btn-active btn-accent">Register</button>
       </form>
     </div>

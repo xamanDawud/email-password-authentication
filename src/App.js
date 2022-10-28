@@ -1,19 +1,29 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { getAuth } from "firebase/auth";
-import BootstrapForm from "./components/BootstrapForm/BootstrapForm";
-import NormalFormValidation from "./components/NormalFormValidation";
-import ReactBootstrapForm from "./components/ReactBootstrapForm/ReactBootstrapForm";
 import TailwindForm from "./components/TailwindForm/TailwindForm";
-import app from "./firebase/firebase.init";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Main from "./layout/Main";
+import LoginWithBootstrapForm from "./components/LoginWithBootstrapForm/LoginWithBootstrapForm";
 
-const auth = getAuth(app);
 function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Main />,
+      children: [
+        { path: "/", element: <TailwindForm /> },
+        { path: "/register", element: <TailwindForm /> },
+        { path: "/login", element: <LoginWithBootstrapForm /> },
+      ],
+    },
+  ]);
   return (
     <div className="mx-auto align-center w-50">
       {/* <NormalFormValidation/> */}
       {/* <ReactBootstrapForm /> */}
       {/* <BootstrapForm /> */}
-      <TailwindForm />
+      {/* <TailwindForm /> */}
+      {/* <LoginWithBootstrapForm /> */}
+      <RouterProvider router={router} />
     </div>
   );
 }
